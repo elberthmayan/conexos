@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Central de Alertas - Conexo</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/style.css">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        /* =================================
+           NOTIFICACOES.HTML - REMAKE "CENTRAL DE ALERTAS"
+        ==================================== */
+        .content-notifications {
+            flex-grow: 1;
+            margin-left: 80px;
+            padding: 2rem 3rem;
+            max-width: 900px;
+            margin-right: auto;
+            margin-left: calc(80px + (100% - 80px - 900px) / 2);
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar:hover ~ .content-notifications {
+            margin-left: 224px;
+        }
+        
+        .alerts-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+        .alerts-header h1 { 
+            font-weight: 800;
+            font-size: 2.5rem;
+        }
+        
+        .alerts-header .btn-clear-all { 
+            width: auto;
+            border-radius: 50px;
+            padding: 10px 20px;
+            font-weight: 600;
+        }
+
+        .alerts-panel {
+            background-color: var(--bg-secondary-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .light-theme .alerts-panel {
+            background-color: var(--bg-secondary-light);
+            border-color: var(--border-light);
+        }
+
+        .alerts-filters {
+            display: flex;
+            gap: 1rem;
+            padding: 0.75rem;
+            overflow-x: auto;
+            background-color: var(--bg-primary-dark);
+            border-bottom: 1px solid var(--border-dark);
+        }
+        .light-theme .alerts-filters {
+            background-color: var(--bg-primary-light);
+            border-bottom-color: var(--border-light);
+        }
+
+        .alert-filter-link {
+            padding: 8px 20px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: var(--text-secondary-dark);
+            font-weight: 600;
+            font-size: 0.9rem;
+            border-radius: 20px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .light-theme .alert-filter-link {
+             color: var(--text-secondary-light);
+        }
+        .alert-filter-link:hover {
+            background-color: var(--bg-secondary-dark);
+        }
+        .light-theme .alert-filter-link:hover {
+            background-color: var(--bg-secondary-light);
+        }
+
+        .alert-filter-link.active {
+            background-color: var(--accent-dark);
+            color: white;
+            box-shadow: 0 2px 10px rgba(var(--accent-dark-rgb), 0.3);
+        }
+        .light-theme .alert-filter-link.active {
+            background-color: var(--accent-light);
+            box-shadow: 0 2px 10px rgba(var(--accent-light-rgb), 0.3);
+        }
+
+        .alerts-content {
+            padding: 1.5rem;
+        }
+
+        .alert-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .alert-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 1rem;
+            background-color: var(--bg-primary-dark);
+            border-radius: 12px;
+            transition: all 0.4s ease-out;
+            position: relative;
+            border-left: 4px solid var(--border-dark);
+        }
+        .light-theme .alert-item {
+            background-color: var(--bg-primary-light);
+            border-left-color: var(--border-light);
+        }
+        .alert-item.new {
+            background-color: rgba(var(--accent-dark-rgb), 0.1);
+        }
+        .light-theme .alert-item.new {
+            background-color: rgba(var(--accent-light-rgb), 0.1);
+        }
+        .alert-item.dismissing {
+            opacity: 0;
+            transform: translateX(50px) scale(0.95);
+        }
+
+        /* Color Coding */
+        .alert-item.type-social { border-left-color: #3b82f6; } /* Blue */
+        .alert-item.type-community { border-left-color: #f59e0b; } /* Amber */
+        .alert-item.type-event { border-left-color: #22c55e; } /* Green */
+        .alert-item.type-system { border-left-color: #ef4444; } /* Red */
+        .alert-item.type-social .alert-icon-wrapper { background-color: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .alert-item.type-community .alert-icon-wrapper { background-color: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+        .alert-item.type-event .alert-icon-wrapper { background-color: rgba(34, 197, 94, 0.15); color: #4ade80; }
+        .alert-item.type-system .alert-icon-wrapper { background-color: rgba(239, 68, 68, 0.15); color: #f87171; }
+        
+        .alert-icon-wrapper {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .alert-icon-wrapper i { font-size: 1.2rem; }
+
+        .alert-content {
+            flex-grow: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .alert-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .alert-content p { margin: 0; line-height: 1.5; color: var(--text-secondary-dark); }
+        .alert-content p strong { color: var(--text-primary-dark); }
+        .light-theme .alert-content p { color: var(--text-secondary-light); }
+        .light-theme .alert-content p strong { color: var(--text-primary-light); }
+       
+        .alert-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+        .alert-post-thumb {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .alert-actions .action-button {
+            width: auto;
+            padding: 8px 15px;
+            font-size: 0.85rem;
+            border-radius: 50px;
+        }
+        .dismiss-alert-btn {
+            background: none; border: none; color: var(--text-secondary-dark);
+            font-size: 1.1rem; cursor: pointer; padding: 5px;
+            transition: color 0.2s;
+        }
+        .dismiss-alert-btn:hover { color: #e0245e; }
+
+        /* NOVO: Estilo para o indicador "AO VIVO" */
+        .live-indicator {
+            background-color: #ef4444;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            animation: pulse-live-small 1.5s infinite;
+        }
+        @keyframes pulse-live-small {
+             0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 7px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .empty-tab-state { text-align: center; padding: 2rem 1rem; color: var(--text-secondary-dark); }
+        .empty-tab-state i { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
+        .empty-tab-state h3 { font-size: 1.2rem; font-weight: 600; }
+
+        @media (max-width: 768px) {
+            .content-notifications { margin-left: 0; padding: 1.5rem; padding-bottom: 80px; }
+            .sidebar:hover ~ .content-notifications { margin-left: 0; }
+            .alerts-header h1 { font-size: 2rem; }
+            .alert-item { flex-wrap: wrap; }
+            .alert-actions { width: 100%; margin-top: 1rem; justify-content: flex-end; }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+
+    <div class="main-wrapper">
+        <div id="sidebar-container"></div>
+
+        <main class="content-notifications">
+            <header class="alerts-header">
+                <h1>Central de Alertas</h1>
+                <button class="btn-secondary btn-clear-all hidden">Limpar tudo</button>
+            </header>
+
+            <section class="alerts-panel">
+                <nav class="alerts-filters">
+                    <button class="alert-filter-link active" data-tab="all">Todas</button>
+                    <button class="alert-filter-link" data-tab="engagement">Engajamento</button>
+                    <button class="alert-filter-link" data-tab="requests">Solicitações</button>
+                    <button class="alert-filter-link" data-tab="events">Eventos</button>
+                    <button class="alert-filter-link" data-tab="system">Sistema</button>
+                </nav>
+                <div class="alerts-content">
+                    <div id="all" class="tab-pane active">
+                        <div class="alert-list" id="notificationListAll"></div>
+                        <div class="empty-tab-state hidden" id="no-notifications-message-all">
+                             <i class="fa-solid fa-bell-slash"></i>
+                             <h3>Tudo em dia!</h3>
+                             <p>Você não tem nenhuma notificação nova.</p>
+                        </div>
+                    </div>
+                    <div id="engagement" class="tab-pane">
+                        <div class="alert-list" id="notificationListEngagement"></div>
+                        <div class="empty-tab-state hidden" id="no-notifications-message-engagement">
+                             <i class="fa-solid fa-heart"></i>
+                             <h3>Nenhum engajamento recente</h3>
+                             <p>Curtidas, menções e comentários aparecerão aqui.</p>
+                        </div>
+                    </div>
+                    <div id="requests" class="tab-pane">
+                        <div class="alert-list" id="notificationListRequests"></div>
+                         <div class="empty-tab-state hidden" id="no-notifications-message-requests">
+                             <i class="fa-solid fa-user-plus"></i>
+                             <h3>Nenhuma solicitação pendente</h3>
+                             <p>Convites e novos seguidores aparecerão aqui.</p>
+                        </div>
+                    </div>
+                    <div id="events" class="tab-pane">
+                        <div class="alert-list" id="notificationListEvents"></div>
+                         <div class="empty-tab-state hidden" id="no-notifications-message-events">
+                             <i class="fa-solid fa-calendar-check"></i>
+                             <h3>Nenhum evento agendado</h3>
+                             <p>Lembretes de aulas e eventos aparecerão aqui.</p>
+                        </div>
+                    </div>
+                    <div id="system" class="tab-pane">
+                        <div class="alert-list" id="notificationListSystem"></div>
+                         <div class="empty-tab-state hidden" id="no-notifications-message-system">
+                             <i class="fa-solid fa-shield-halved"></i>
+                             <h3>Nenhum aviso do sistema</h3>
+                             <p>Atualizações e avisos importantes aparecerão aqui.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals (mantidos) -->
+    <div id="confirmation-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-modal-btn">&times;</button>
+            <h2>Limpar Todas as Notificações?</h2>
+            <p>Tem certeza? Esta ação não pode ser desfeita.</p>
+            <div class="form-actions" style="justify-content: flex-end;">
+                <button type="button" class="btn-secondary" id="cancel-clear-all-btn">Cancelar</button>
+                <button type="button" class="btn-danger" id="confirm-clear-all-btn">Limpar</button>
+            </div>
+        </div>
+    </div>
+    <div id="event-details-modal" class="modal-overlay hidden"><!-- ... --></div>
+    <div id="toast-message" class="toast-message"><p id="toast-text"></p></div>
+    <div id="music-player-container"></div>
+
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Explorador - Conexo</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & Source Code Pro -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Script para aplicar o tema antes da renderização e evitar "pisca-pisca" -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        /* =================================
+           PROFILE.HTML - REMAKE "PAINEL DO EXPLORADOR" (V2 - RESPONSIVO)
+        ==================================== */
+        :root {
+            --profile-font: 'Source Code Pro', monospace;
+        }
+
+        /* --- Layout Principal --- */
+        .content-profile {
+            flex-grow: 1;
+            margin-left: 80px;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .sidebar:hover ~ .content-profile {
+            margin-left: 220px;
+        }
+        
+        .profile-grid {
+            width: 100%;
+            max-width: 1200px;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 2rem;
+            grid-template-areas: 
+                "sidebar banner"
+                "sidebar tabs";
+        }
+        
+        /* --- Efeito de Vidro (Glassmorphism) --- */
+        .glass-card {
+            background: rgba(26, 29, 35, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark);
+            border-radius: 16px;
+            padding: 1.5rem;
+        }
+
+        /* --- Coluna da Esquerda (Sidebar do Perfil) --- */
+        .profile-sidebar {
+            grid-area: sidebar;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .identity-card { text-align: center; }
+        .profile-avatar-wrapper {
+            width: 140px; height: 140px; border-radius: 50%;
+            margin: -80px auto 1rem;
+            border: 4px solid var(--accent-dark);
+            background-color: var(--bg-secondary-dark);
+            position: relative; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 20px rgba(var(--accent-dark-rgb), 0.4);
+        }
+        .profile-avatar-wrapper img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+        .edit-pic-overlay {
+            position: absolute; inset: 0; background-color: rgba(0,0,0,0.6);
+            color: white; font-size: 1.8rem; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; opacity: 0; transition: opacity 0.2s;
+        }
+        .profile-avatar-wrapper:hover .edit-pic-overlay { opacity: 1; }
+        
+        .identity-card h1 { font-family: var(--profile-font); font-size: 2rem; font-weight: 700; }
+        .identity-card h2 { font-family: var(--profile-font); font-size: 1.1rem; color: var(--accent-dark); font-weight: 600; margin-bottom: 1rem; }
+        
+        .level-bar-bg { width: 100%; height: 8px; background-color: var(--bg-primary-dark); border-radius: 4px; overflow: hidden; }
+        #level-progress { width: 60%; height: 100%; background: linear-gradient(90deg, var(--accent-dark), var(--accent-hover-dark)); transition: width 0.5s; }
+        .level-info { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--text-secondary-dark); margin-top: 0.5rem; }
+
+        .stats-card .stats-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;
+        }
+        .stats-card .attribute-box { text-align: center; }
+        .stats-card .value { font-size: 1.5rem; font-weight: 700; font-family: var(--profile-font); }
+        .stats-card .label { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary-dark); }
+        
+        .bio-card p { color: var(--text-secondary-dark); line-height: 1.7; font-size: 0.95rem; }
+        
+        /* --- Coluna da Direita (Banner e Conteúdo) --- */
+        .profile-main {
+            grid-area: banner; /* Ocupa a área do banner e das abas */
+            grid-row: 1 / span 2;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .profile-header-banner {
+            height: 300px;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-dark);
+        }
+        .profile-header-banner img { width: 100%; height: 100%; object-fit: cover; }
+        .banner-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(13,15,18,0.8) 0%, transparent 50%);
+        }
+        .banner-actions { position: absolute; bottom: 1rem; right: 1rem; display: flex; gap: 0.75rem; }
+        .banner-actions .btn-overlay {
+            background-color: rgba(30, 30, 30, 0.7); backdrop-filter: blur(5px);
+            color: white; border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 10px 16px; border-radius: 8px; font-size: 0.9rem;
+            font-weight: 600; cursor: pointer; display: flex; align-items: center;
+            gap: 8px; transition: all 0.3s ease;
+        }
+        .banner-actions .btn-overlay:hover { background-color: rgba(0, 0, 0, 0.8); transform: translateY(-2px); }
+
+        .profile-content-tabs {
+            background: rgba(26, 29, 35, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark); border-radius: 16px;
+        }
+        .tabs-nav { display: flex; padding: 0.5rem; background-color: var(--bg-primary-dark); border-top-left-radius: 16px; border-top-right-radius: 16px; }
+        .tab-link {
+            flex: 1; padding: 1rem; border: none; background: none; color: var(--text-secondary-dark);
+            font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+            transition: all 0.2s; justify-content: center; border-radius: 12px;
+        }
+        .tab-link.active { background-color: var(--accent-dark); color: white; }
+        .tab-link:not(.active):hover { background-color: var(--bg-secondary-dark); }
+        .tabs-content { padding: 1.5rem; }
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; animation: fadeIn 0.4s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Estilos do conteúdo das abas (reutilizados) */
+        .post-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+        .inventory-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        .library-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+        .achievements-grid { display: flex; flex-direction: column; gap: 1rem; }
+
+        .post-grid-item { position: relative; overflow: hidden; border-radius: 12px; cursor: pointer; background-color: var(--bg-secondary); aspect-ratio: 1 / 1; }
+        .post-grid-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s ease; }
+        .post-grid-item:hover img { transform: scale(1.05); }
+        .post-grid-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; gap: 1.5rem; color: white; font-size: 1.1rem; font-weight: 600; opacity: 0; transition: opacity 0.3s ease; }
+        .post-grid-item:hover .post-grid-overlay { opacity: 1; }
+
+        .inventory-item-card { text-align: center; background-color: var(--bg-primary-dark); border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border-dark); }
+        .inventory-item-card i { font-size: 2.5rem; color: var(--accent-dark); margin-bottom: 1rem;}
+        .inventory-item-card h4 { font-size: 1rem; font-weight: 600; }
+        .inventory-item-card p { font-size: 0.8rem; color: var(--text-secondary); }
+
+        .library-item-card { aspect-ratio: 3 / 4; border-radius: 12px; overflow: hidden; }
+        .library-item-card img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .achievement-card { display: flex; align-items: center; gap: 1rem; background-color: var(--bg-primary-dark); padding: 1rem; border-radius: 12px; border: 1px solid var(--border-dark); }
+        .achievement-card.locked { opacity: 0.5; }
+        .achievement-icon { font-size: 1.8rem; color: var(--accent); width: 50px; text-align: center; }
+        .achievement-details h4 { font-weight: 700; }
+        .achievement-details p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+        
+        .empty-list-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            background-color: var(--bg-primary-dark);
+            border-radius: 12px;
+        }
+
+        /* --- NOVO: REMAKE DO MODAL DE CONFIGURAÇÕES --- */
+        #settings-modal .modal-content.glass-card {
+            padding: 0;
+            max-width: 450px;
+            overflow: hidden;
+        }
+        #settings-modal .modal-header {
+            padding: 1.5rem;
+            align-items: center;
+        }
+        #settings-modal .modal-header h2 {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+        }
+
+        .settings-body {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .settings-menu-v2 {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .setting-item-v2 {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-radius: 12px;
+            background-color: var(--bg-primary-dark);
+            border: 1px solid var(--border-dark);
+            transition: all 0.2s ease;
+            color: var(--text-primary-dark);
+            text-decoration: none;
+        }
+        .setting-item-v2:hover {
+            background-color: var(--bg-secondary-dark);
+            border-color: var(--accent-dark);
+            transform: scale(1.02);
+        }
+
+        .setting-icon {
+            font-size: 1.2rem;
+            color: var(--accent-dark);
+            width: 24px;
+            text-align: center;
+        }
+
+        .setting-text {
+            flex-grow: 1;
+        }
+        .setting-text h4 {
+            font-weight: 600;
+        }
+        .setting-text p {
+            font-size: 0.85rem;
+            color: var(--text-secondary-dark);
+            margin: 0;
+        }
+
+        .setting-item-v2 .fa-chevron-right {
+            color: var(--text-secondary-dark);
+        }
+
+        .theme-switcher-v2 {
+            display: flex;
+            background-color: var(--bg-primary-dark);
+            border-radius: 20px;
+            padding: 4px;
+        }
+
+        .theme-switcher-v2 button {
+            background: none;
+            border: none;
+            color: var(--text-secondary-dark);
+            padding: 6px 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-switcher-v2 button.active {
+            background-color: var(--accent-dark);
+            color: white;
+            box-shadow: 0 0 10px rgba(var(--accent-dark-rgb), 0.5);
+        }
+        
+        .btn-logout-v2 {
+            width: 100%;
+            padding: 1rem;
+            background-color: #3D1C20;
+            border: 1px solid #7f1d1d;
+            color: #FF8A8A;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .btn-logout-v2:hover {
+            background-color: #7f1d1d;
+            color: white;
+            transform: scale(1.02);
+        }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 1024px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+                grid-template-areas: 
+                    "banner"
+                    "sidebar"
+                    "tabs"; /* As abas ficam na mesma área do banner no código, mas visualmente abaixo */
+            }
+            .profile-sidebar { 
+                position: static; 
+                top: auto;
+            }
+            .profile-main { 
+                grid-area: auto; /* Reseta a área para o fluxo normal */
+                grid-row: auto;
+            }
+            .profile-content-tabs {
+                grid-area: tabs;
+            }
+        }
+        @media (max-width: 768px) {
+            .content-profile { 
+                margin-left: 0; 
+                padding: 1rem; 
+                padding-bottom: 80px; 
+            }
+            .sidebar:hover ~ .content-profile {
+                 margin-left: 0;
+            }
+            .profile-header-banner {
+                height: 220px;
+            }
+            .profile-avatar-wrapper { 
+                margin-top: -70px; 
+                width: 120px;
+                height: 120px;
+            }
+            .identity-card h1 { font-size: 1.8rem; }
+            .identity-card h2 { font-size: 1rem; }
+            
+            .tabs-nav {
+                flex-wrap: wrap;
+            }
+            .tab-link {
+                flex-basis: 50%;
+                font-size: 0.9rem;
+            }
+            .tab-link i {
+                font-size: 1.1rem;
+            }
+            .tabs-content {
+                padding: 1rem;
+            }
+            .post-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+            .library-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            
+        }
+
+    </style>
+</head>
+<body class="dark-theme">
+
+    <!-- Inputs de arquivo ocultos -->
+    <input type="file" id="banner-upload-input" accept="image/*" style="display: none;">
+    <input type="file" id="profile-pic-upload-input" accept="image/*" style="display: none;">
+
+    <div class="main-wrapper">
+        <!-- Sidebar será injetado aqui -->
+        <div id="sidebar-container"></div>
+        
+        <main class="content-profile">
+            <div class="profile-grid">
+                
+                <!-- Coluna da Esquerda: Identidade e Stats -->
+                <aside class="profile-sidebar">
+                    <div class="identity-card glass-card">
+                        <div class="profile-avatar-wrapper" id="edit-pic-trigger">
+                            <img src="https://i.pinimg.com/736x/6a/bc/d9/6abcd9f34ebc8fd7dce5b3edf69a0126.jpg" alt="Foto do Perfil" id="profile-pic-display">
+                            <div class="edit-pic-overlay"><i class="fa-solid fa-camera"></i></div>
+                        </div>
+                        <h1 id="profile-name-display">Seu Nome</h1>
+                        <h2 id="profile-class-display">Classe Indefinida</h2>
+                        <div class="level-bar-bg">
+                            <div id="level-progress"></div>
+                        </div>
+                        <div class="level-info">
+                            <span id="level-display">Nível 1</span>
+                            <span id="xp-display">600 / 1000 XP</span>
+                        </div>
+                    </div>
+
+                    <div class="stats-card glass-card">
+                        <div class="stats-grid">
+                            <div class="attribute-box"><div class="value" id="followers-display">0</div><div class="label">Aliança</div></div>
+                            <div class="attribute-box"><div class="value" id="quests-display">0</div><div class="label">Missões</div></div>
+                            <div class="attribute-box"><div class="value" id="profile-faction-display">N/A</div><div class="label">Facção</div></div>
+                            <div class="attribute-box"><div class="value" id="achievements-display">0/0</div><div class="label">Conquistas</div></div>
+                        </div>
+                    </div>
+
+                    <div class="bio-card glass-card">
+                        <p id="profile-bio-display">Sua bio inspiradora vai aqui. Edite seu perfil para se apresentar à comunidade.</p>
+                    </div>
+                </aside>
+
+                <!-- Coluna da Direita: Banner e Conteúdo Principal -->
+                <div class="profile-main">
+                    <header class="profile-header-banner">
+                        <img src="https://i.pinimg.com/originals/c7/a9/51/c7a9514e8b991255b5d8021c789f21f7.gif" alt="Banner do Perfil" id="banner-display">
+                        <div class="banner-overlay"></div>
+                        <div class="banner-actions">
+                            <button id="open-settings-modal-btn" class="btn-overlay" title="Configurações"><i class="fa-solid fa-gear"></i></button>
+                            <button id="edit-banner-trigger" class="btn-overlay" title="Alterar Fundo"><i class="fa-solid fa-image"></i></button>
+                            <button id="open-edit-profile-modal-btn" class="btn-overlay"><i class="fa-solid fa-user-pen"></i> Editar Ficha</button>
+                        </div>
+                    </header>
+
+                    <section class="profile-content-tabs">
+                        <nav class="tabs-nav">
+                            <button class="tab-link active" data-tab="quest-log"><i class="fa-solid fa-scroll"></i> <span>Log</span></button>
+                            <button class="tab-link" data-tab="inventory"><i class="fa-solid fa-backpack"></i> <span>Inventário</span></button>
+                            <button class="tab-link" data-tab="biblioteca"><i class="fa-solid fa-gamepad"></i> <span>Biblioteca</span></button>
+                            <button class="tab-link" data-tab="conquistas"><i class="fa-solid fa-trophy"></i> <span>Conquistas</span></button>
+                        </nav>
+                        <div class="tabs-content">
+                            <div id="quest-log" class="tab-pane active"><div class="post-grid"></div></div>
+                            <div id="inventory" class="tab-pane"><div class="inventory-grid"></div></div>
+                            <div id="biblioteca" class="tab-pane"><div class="library-grid"></div></div>
+                            <div id="conquistas" class="tab-pane"><div class="achievements-grid"></div></div>
+                        </div>
+                    </section>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAIS -->
+    <div id="settings-modal" class="modal-overlay hidden">
+        <div class="modal-content glass-card">
+            <header class="modal-header">
+                <h2><i class="fa-solid fa-sliders"></i> Configurações</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div class="settings-body">
+                <ul class="settings-menu-v2">
+                    <li>
+                        <a href="#" id="edit-profile-from-settings" class="setting-item-v2">
+                            <i class="fa-solid fa-user-pen setting-icon"></i>
+                            <div class="setting-text">
+                                <h4>Editar Ficha</h4>
+                                <p>Altere seu nome, bio e classe.</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="ajuda.html" target="_blank" class="setting-item-v2">
+                            <i class="fa-solid fa-circle-question setting-icon"></i>
+                            <div class="setting-text">
+                                <h4>Ajuda e Suporte</h4>
+                                <p>Acesse a central de ajuda.</p>
+                            </div>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="setting-item-v2">
+                            <i class="fa-solid fa-palette setting-icon"></i>
+                            <div class="setting-text">
+                                <h4>Tema da Interface</h4>
+                                <p>Alterne entre claro e escuro.</p>
+                            </div>
+                            <div class="theme-switcher-v2">
+                                <button id="theme-toggle-light" title="Tema Claro"><i class="fa-solid fa-sun"></i></button>
+                                <button id="theme-toggle-dark" class="active" title="Tema Escuro"><i class="fa-solid fa-moon"></i></button>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                <button class="btn-logout-v2" id="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sair da Conta
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="edit-profile-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+             <header class="modal-header">
+                <h2>Editar Painel do Explorador</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <form id="edit-profile-form" style="padding: 1.5rem;">
+                <div class="form-group"><label for="profile-name-input">Nome de Explorador</label><input type="text" id="profile-name-input" class="form-control"></div>
+                <div class="form-group"><label for="profile-bio-input">Bio / História</label><textarea id="profile-bio-input" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label for="profile-class-input">Classe</label><input type="text" id="profile-class-input" class="form-control" placeholder="Ex: Streamer, Dev, Artista"></div>
+                <div class="form-group"><label for="profile-faction-input">Facção</label><input type="text" id="profile-faction-input" class="form-control" placeholder="Ex: PC Master Race, Sonysta"></div>
+                <div class="form-group"><label for="profile-accent-color-input">Cor de Destaque</label><input type="color" id="profile-accent-color-input" class="form-control" style="height: 40px; padding: 5px;"></div>
+                <div class="form-actions" style="display:flex; justify-content:flex-end; gap:1rem; margin-top:1rem;"><button type="button" class="btn-secondary close-modal-btn">Cancelar</button><button type="submit" class="btn-primary">Salvar</button></div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Music Player (Injetado via JS) -->
+    <div id="music-player-container"></div>
+
+    <!-- Main JavaScript File -->
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

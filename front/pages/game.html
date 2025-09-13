@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexo Play - O Seu Universo Gamer</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & Source Code Pro -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Script para aplicar o tema antes da renderização -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        /* =================================
+           GAME.HTML - ESTILOS DO REMAKE
+        ==================================== */
+        :root {
+            --bg-primary: var(--bg-primary-dark);
+            --bg-secondary: var(--bg-secondary-dark);
+            --border: var(--border-dark);
+            --text-primary: var(--text-primary-dark);
+            --text-secondary: var(--text-secondary-dark);
+            --accent: var(--accent-dark);
+            --shadow: var(--shadow-dark);
+        }
+        html.light-theme {
+            --bg-primary: var(--bg-primary-light);
+            --bg-secondary: var(--bg-secondary-light);
+            --border: var(--border-light);
+            --text-primary: var(--text-primary-light);
+            --text-secondary: var(--text-secondary-light);
+            --accent: var(--accent-light);
+            --shadow: var(--shadow-light);
+        }
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+        /* --- Layout --- */
+        .content-game {
+            flex-grow: 1;
+            margin-left: 80px;
+            padding: 2rem 3rem;
+            max-width: 1400px;
+            margin-right: auto;
+            margin-left: calc(80px + (100% - 80px - 1400px) / 2);
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar:hover ~ .content-game {
+            margin-left: 224px;
+        }
+        .game-section {
+            margin-bottom: 4rem;
+        }
+        /* --- Cabeçalho --- */
+        .game-hub-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            margin-bottom: 4rem;
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: linear-gradient(rgba(18, 18, 18, 0.8), rgba(18, 18, 18, 0.8)), url('https://images.unsplash.com/photo-1580234811497-9df7fd2f357e?q=80&w=1467&auto=format&fit=crop') no-repeat center center / cover;
+        }
+        .header-text h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            color: white;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            letter-spacing: -2px;
+            margin-bottom: 1rem;
+        }
+        .header-text p {
+            font-size: 1.1rem;
+            color: #e4e6eb;
+            max-width: 600px;
+        }
+        /* NOVO: Carteira de Moedas */
+        .coin-wallet {
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+        }
+        .coin-wallet .wallet-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #b0b3b8;
+            margin-bottom: 0.5rem;
+        }
+        .coin-balance {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .coin-balance i {
+            font-size: 2.5rem;
+            color: #f59e0b;
+        }
+        #coin-balance-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* --- Títulos de Seção --- */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .section-title i {
+            color: var(--accent);
+        }
+        /* --- Cards Genéricos --- */
+        .game-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+        .game-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            border-color: var(--accent);
+        }
+        .card-image-container {
+            position: relative;
+            height: 225px;
+            overflow: hidden;
+        }
+        .card-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        .game-card:hover .card-image-container img {
+            transform: scale(1.05);
+        }
+        .card-content {
+            padding: 1.5rem;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .card-content h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+        }
+        .card-content p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+            line-height: 1.6;
+        }
+        /* --- Grids --- */
+        .items-grid, .news-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        /* NOVO: Seção de Missões */
+        .missions-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .mission-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-left: 5px solid var(--accent);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .mission-card.completed {
+            border-left-color: #22c55e;
+            opacity: 0.7;
+        }
+        .mission-info { display: flex; align-items: center; gap: 1rem; }
+        .mission-info i { font-size: 1.8rem; color: var(--accent); }
+        .mission-card.completed .mission-info i { color: #22c55e; }
+        .mission-details h4 { font-weight: 600; margin: 0; }
+        .mission-details p { font-size: 0.9rem; color: var(--text-secondary); margin: 0; }
+        .mission-reward { text-align: right; }
+        .mission-reward .reward-amount { font-size: 1.2rem; font-weight: 700; color: #f59e0b; }
+        .mission-reward .btn-primary { width: auto; margin-top: 0.5rem; padding: 8px 16px; }
+        .mission-reward .btn-primary.claimed { background-color: #22c55e; cursor: default; }
+
+        /* --- Estilos Específicos --- */
+        .store-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+        }
+        .store-item-price {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        .store-item-price.free {
+            color: #22c55e;
+        }
+        .store-item-footer .btn-primary {
+            width: auto;
+            padding: 10px 20px;
+        }
+        .play-online-game-btn {
+            width: 100%;
+            margin-top: auto;
+        }
+         .news-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: auto;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .acquire-btn.in-library {
+            background-color: var(--btn-secondary-bg);
+            color: var(--btn-secondary-text);
+            cursor: not-allowed;
+        }
+        
+        /* --- Modal do Jogo --- */
+        #game-play-modal .modal-content {
+            width: 90vw;
+            max-width: 1200px;
+            height: 85vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-secondary);
+        }
+        .game-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .game-modal-header h2 { font-size: 1.25rem; font-weight: 700; margin: 0; }
+        .game-modal-body { flex-grow: 1; padding: 0; overflow: hidden; background: #000; }
+        .game-modal-body iframe { width: 100%; height: 100%; border: none; }
+        
+        .news-card-clickable {
+            cursor: pointer;
+        }
+
+
+        /* --- NOVO: Modal de Leitura de Notícias --- */
+        #news-reader-modal .modal-content {
+            max-width: 800px;
+            padding: 0;
+            background-color: var(--bg-secondary);
+        }
+        #news-modal-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-top-left-radius: 12px;
+            border-top-right-radius: 12px;
+        }
+        .news-modal-content {
+            padding: 2rem;
+        }
+        #news-modal-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+        .news-modal-meta {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+        #news-modal-body {
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+        .news-modal-footer {
+            padding: 1.5rem 2rem;
+            text-align: right;
+            border-top: 1px solid var(--border);
+        }
+
+        /* --- Estilos para o novo botão de fechar e responsividade do modal de notícias --- */
+        #news-reader-modal .modal-content {
+            display: flex;
+            flex-direction: column;
+            max-height: 90vh;
+        }
+        .news-modal-content {
+            overflow-y: auto; /* Permite scroll no texto em telas menores */
+        }
+        #news-reader-modal .close-modal-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(0,0,0,0.5);
+            color: white;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.2s, transform 0.2s;
+            line-height: 1;
+        }
+        #news-reader-modal .close-modal-btn:hover {
+            background-color: rgba(0,0,0,0.8);
+            transform: scale(1.1);
+        }
+
+        /* --- Toast Notification --- */
+        #toast-message {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #22c55e;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            z-index: 2000;
+            transition: all 0.5s ease-in-out;
+            opacity: 0;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        #toast-message.show {
+            bottom: 30px;
+            opacity: 1;
+        }
+
+        /* --- Responsividade --- */
+        @media (max-width: 1200px) {
+            .game-hub-header { flex-direction: column; text-align: center; gap: 1.5rem; }
+            .header-text h1 { font-size: 2.5rem; }
+        }
+        @media (max-width: 768px) {
+            .content-game { margin-left: 0; padding: 1rem; padding-bottom: 80px; }
+            .game-hub-header { padding: 1.5rem; }
+            .header-text h1 { font-size: 2rem; }
+            .header-text p { font-size: 1rem; }
+            .coin-wallet { padding: 0.8rem 1rem; }
+            #coin-balance-amount { font-size: 1.5rem; }
+            .section-title { font-size: 1.5rem; }
+            .items-grid, .news-grid-container { grid-template-columns: 1fr; }
+            
+            /* --- Responsividade do Modal de Notícias --- */
+            #news-reader-modal .modal-content {
+                width: 100vw;
+                height: 100vh;
+                max-height: 100vh;
+                border-radius: 0;
+            }
+            #news-modal-image {
+                height: 220px;
+                border-radius: 0;
+            }
+            .news-modal-content {
+                padding: 1.5rem;
+            }
+            #news-modal-title {
+                font-size: 1.6rem;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+
+    <div class="main-wrapper">
+        <!-- Sidebar (Injetado via JS) -->
+        <div id="sidebar-container"></div>
+
+        <!-- Conteúdo Principal do Game Hub -->
+        <main class="content-game">
+            <header class="game-hub-header">
+                <div class="header-text">
+                    <h1>Conexo Play</h1>
+                    <p>O seu universo de notícias, jogos casuais e descobertas.</p>
+                </div>
+                <div class="coin-wallet">
+                    <div class="wallet-title">Sua Carteira</div>
+                    <div class="coin-balance">
+                        <i class="fa-solid fa-coins"></i>
+                        <span id="coin-balance-amount">0</span>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- NOVA Seção de Missões -->
+            <section class="game-section">
+                <h2 class="section-title"><i class="fa-solid fa-tasks"></i> Missões Diárias</h2>
+                <div class="missions-grid" id="missions-grid">
+                    <!-- Cards de missões serão renderizados aqui -->
+                </div>
+            </section>
+
+            <!-- Seção da Loja Simulada -->
+            <section class="game-section">
+                <h2 class="section-title"><i class="fa-solid fa-store"></i> Destaques da Loja</h2>
+                <div class="items-grid" id="store-grid">
+                    <!-- Cards de jogos da loja serão renderizados aqui -->
+                </div>
+            </section>
+
+            <!-- Seção de Jogos para Jogar Agora -->
+            <section class="game-section">
+                <h2 class="section-title"><i class="fa-solid fa-gamepad"></i> Jogos Casuais</h2>
+                <div class="items-grid" id="online-games-grid">
+                     <!-- Cards de jogos casuais serão renderizados aqui -->
+                </div>
+            </section>
+
+            <!-- Seção de Notícias -->
+            <section class="game-section">
+                <h2 class="section-title"><i class="fa-solid fa-newspaper"></i> Últimas Notícias</h2>
+                <div class="news-grid-container" id="news-grid">
+                     <!-- Cards de notícias serão carregados aqui -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal para Jogar Online -->
+    <div id="game-play-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <header class="game-modal-header">
+                <h2 id="game-modal-title"></h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div class="game-modal-body">
+                <iframe id="game-iframe" src="" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- NOVO: Modal para Leitura de Notícias -->
+    <div id="news-reader-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="close-modal-btn">&times;</button>
+            <img id="news-modal-image" src="" alt="Imagem da Notícia">
+            <div class="news-modal-content">
+                <h2 id="news-modal-title"></h2>
+                <div class="news-modal-meta">
+                    <span><i class="fa-solid fa-newspaper"></i> <strong id="news-modal-source"></strong></span>
+                    <span><i class="fa-solid fa-calendar-days"></i> <span id="news-modal-date"></span></span>
+                </div>
+                <p id="news-modal-body"></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast-message" class="toast-message"></div>
+    
+    <!-- Music Player (Injetado via JS) -->
+    <div id="music-player-container"></div>
+
+    <!-- Main JavaScript File -->
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

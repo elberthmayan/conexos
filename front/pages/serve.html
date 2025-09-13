@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidade - Conexo</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & Source Code Pro -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =================================
+           ESTILOS GLOBAIS (DE style.css)
+        ==================================== */
+        :root {
+            --font-family: 'Inter', sans-serif;
+            --font-code: 'Source Code Pro', monospace;
+            --bg-primary-dark: #0D0F12;
+            --bg-secondary-dark: #1A1D23;
+            --text-primary-dark: #EAECEF;
+            --text-secondary-dark: #8A93A2;
+            --border-dark: #2A2F38;
+            --accent-dark: #7e7ee3;
+            --accent-hover-dark: #9d9dff;
+            --accent-dark-rgb: 126, 126, 227;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: var(--font-family); }
+        .hidden { display: none !important; }
+        .btn-primary {
+            background-color: var(--accent-dark);
+            color: white; border: none; padding: 12px 20px;
+            border-radius: 8px; font-weight: 600; cursor: pointer;
+            transition: background-color 0.2s; font-size: 1rem;
+        }
+        .btn-primary:hover { background-color: var(--accent-hover-dark); }
+        .form-control {
+            width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid var(--border-dark);
+            background-color: var(--bg-primary-dark);
+            color: var(--text-primary-dark); font-size: 1rem;
+        }
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.7); backdrop-filter: blur(10px);
+            display: flex; justify-content: center; align-items: center; z-index: 1100;
+        }
+        .modal-content {
+            background: var(--bg-secondary-dark);
+            border-radius: 12px; width: 90%; max-width: 500px;
+            position: relative; border: 1px solid var(--border-dark);
+        }
+        .modal-header {
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-dark);
+        }
+        .modal-header h2 { font-size: 1.25rem; }
+
+        .close-modal-btn {
+            background: none; border: none; font-size: 1.5rem;
+            color: var(--text-secondary-dark); cursor: pointer;
+        }
+        .spinner {
+            border: 4px solid var(--border-dark); border-top: 4px solid var(--accent-dark);
+            border-radius: 50%; width: 40px; height: 40px;
+            animation: spin 1s linear infinite; margin: 20px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* =================================
+           REMASTERIZAÇÃO DO HUB - "TERMINAL DA COMUNIDADE"
+        ==================================== */
+        body {
+            overflow: hidden;
+            background-color: var(--bg-primary-dark);
+            color: var(--text-primary-dark);
+        }
+        #galaxy-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
+        
+        .terminal-container {
+            display: grid;
+            grid-template-columns: 280px 1fr 300px;
+            grid-template-rows: 70px 1fr auto;
+            grid-template-areas:
+                "header header header"
+                "nav-deck terminal members-panel"
+                "user-panel terminal members-panel";
+            height: 100vh;
+            width: 100vw;
+            gap: 1rem;
+            padding: 1rem;
+            position: relative;
+        }
+
+        /* --- Header --- */
+        .terminal-header {
+            grid-area: header;
+            background: rgba(26, 29, 35, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .community-id { display: flex; align-items: center; gap: 1rem; }
+        .community-id img { width: 40px; height: 40px; border-radius: 8px; }
+        .community-id h1 { font-size: 1.25rem; font-weight: 700; }
+        .header-actions { display: flex; align-items: center; gap: 0.5rem; }
+        .header-action-btn {
+            background: none; border: none; color: var(--text-secondary-dark);
+            font-size: 1.2rem; cursor: pointer; width: 44px; height: 44px;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .header-action-btn:hover { background-color: rgba(var(--accent-dark-rgb), 0.15); color: white; }
+        .header-action-btn.mobile-toggle { display: none; }
+
+        /* --- Navigation Deck (Left) --- */
+        .navigation-deck {
+            grid-area: nav-deck;
+            background: rgba(26, 29, 35, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark); border-radius: 12px;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .channel-category {
+            font-size: 0.8rem; font-weight: 700; color: var(--text-secondary-dark);
+            text-transform: uppercase; padding: 0.5rem; margin-top: 1rem;
+        }
+        .channel-list { list-style: none; }
+        .channel-list li a {
+            display: flex; align-items: center; gap: 12px; padding: 12px;
+            border-radius: 8px; color: var(--text-secondary-dark); font-weight: 500;
+            transition: background-color 0.2s, color 0.2s; text-decoration: none;
+        }
+        .channel-list li.locked a { color: #5a5d63; pointer-events: none; }
+        .channel-list li a:hover { background-color: rgba(var(--accent-dark-rgb), 0.1); color: var(--text-primary-dark); }
+        .channel-list li a.active { background-color: var(--accent-dark); color: white; font-weight: 600; }
+        .channel-list i { width: 20px; text-align: center; }
+
+        /* --- User Panel (Bottom-Left) --- */
+        .user-panel {
+            grid-area: user-panel;
+            background: rgba(26, 29, 35, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark); border-radius: 12px;
+            padding: 1rem; display: flex; align-items: center; gap: 12px;
+        }
+        .user-panel img { width: 44px; height: 44px; border-radius: 50%; }
+        .user-panel span { font-weight: 600; font-size: 1rem; }
+
+        /* --- Terminal (Center) --- */
+        .terminal-main {
+            grid-area: terminal;
+            background: rgba(26, 29, 35, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark); border-radius: 12px;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .terminal-content-area {
+            flex-grow: 1; overflow-y: auto; padding: 1.5rem;
+            display: flex; flex-direction: column; gap: 1.5rem;
+        }
+        .terminal-footer {
+            padding: 1rem; display: flex; align-items: center; gap: 1rem;
+            border-top: 1px solid var(--border-dark);
+        }
+        .chat-input-wrapper {
+            width: 100%; background-color: var(--bg-primary-dark); border-radius: 12px;
+            display: flex; align-items: center; padding: 0 0.5rem 0 1rem;
+            border: 1px solid var(--border-dark);
+        }
+        #hub-chat-input {
+            flex-grow: 1; background: none; border: none; padding: 14px 0;
+            color: var(--text-primary-dark); font-size: 1rem; outline: none;
+        }
+
+        /* --- Members Panel (Right) --- */
+        .members-panel {
+            grid-area: members-panel;
+            background: rgba(26, 29, 35, 0.7); backdrop-filter: blur(15px);
+            border: 1px solid var(--border-dark); border-radius: 12px;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+        .member-category { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary-dark); text-transform: uppercase; padding: 0.5rem; }
+        .member-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px;
+            border-radius: 8px; cursor: pointer; transition: background-color 0.2s;
+        }
+        .member-item:hover { background-color: rgba(var(--accent-dark-rgb), 0.1); }
+        .member-item img { width: 36px; height: 36px; border-radius: 50%; }
+        .member-item span { font-weight: 500; color: var(--text-secondary-dark); }
+        .member-item.online span { color: var(--text-primary-dark); }
+        .member-item.offline { opacity: 0.5; }
+
+        /* --- Chat Bubbles & System Messages --- */
+        .chat-message-bubble { display: flex; gap: 12px; max-width: 85%; }
+        .chat-message-bubble.sent { align-self: flex-end; flex-direction: row-reverse; }
+        .chat-message-bubble.received { align-self: flex-start; }
+        .bubble-avatar { width: 40px; height: 40px; border-radius: 50%; }
+        .bubble-content { background-color: var(--bg-secondary-dark); padding: 12px 16px; border-radius: 18px; }
+        .chat-message-bubble.sent .bubble-content { background-color: var(--accent-dark); color: white; border-bottom-right-radius: 5px; }
+        .chat-message-bubble.received .bubble-content { border-bottom-left-radius: 5px; }
+        .bubble-username { font-weight: 600; color: var(--accent-dark); }
+        .chat-message-bubble.sent .bubble-username { color: rgba(255,255,255,0.9); }
+        .bubble-timestamp { font-size: 0.75rem; color: #8A93A2; margin-left: 8px;}
+        .bubble-content p { margin-top: 4px; line-height: 1.6; word-break: break-word; }
+        .bubble-media { max-width: 100%; border-radius: 12px; margin-top: 8px; }
+
+        .system-message-container { text-align: center; padding: 2rem; }
+        .system-message-container h3 { font-size: 1.5rem; margin-bottom: 1rem; }
+        .system-message-container p { color: var(--text-secondary-dark); margin-bottom: 1.5rem; }
+
+        /* --- Estilos dos Modais de GIF e Emoji --- */
+        .gif-picker-body { padding: 1rem; }
+        #gif-search-input { margin-bottom: 1rem; }
+        .gif-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-height: 40vh; overflow-y: auto; }
+        .gif-item { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer; }
+        .emoji-picker-body { padding: 1rem; display: grid; grid-template-columns: repeat(auto-fill, minmax(32px, 1fr)); gap: 8px; max-height: 40vh; overflow-y: auto; }
+        .emoji-picker-body button { background: none; border: none; font-size: 1.5rem; cursor: pointer; border-radius: 6px; padding: 4px; transition: background-color 0.2s; aspect-ratio: 1 / 1; }
+        .emoji-picker-body button:hover { background-color: var(--bg-primary-dark); }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 1024px) {
+            .terminal-container {
+                grid-template-columns: 240px 1fr;
+                grid-template-areas:
+                    "header header"
+                    "nav-deck terminal"
+                    "user-panel terminal";
+            }
+            .members-panel { display: none; }
+            .header-action-btn#toggle-members-btn { display: none; }
+        }
+
+        @media (max-width: 768px) {
+            .terminal-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: 60px 1fr auto;
+                grid-template-areas:
+                    "header"
+                    "terminal"
+                    "terminal";
+                padding: 0.5rem;
+                gap: 0.5rem;
+            }
+            .navigation-deck, .user-panel {
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                width: 280px;
+                z-index: 100;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                display: flex; flex-direction: column;
+            }
+            .navigation-deck.visible {
+                transform: translateX(0);
+            }
+            .user-panel {
+                top: auto;
+                height: auto;
+            }
+            .user-panel.visible {
+                 transform: translateX(0);
+            }
+            .navigation-deck {
+                 height: calc(100% - 90px); /* Ajuste para caber o painel do usuário */
+                 border-radius: 0;
+                 padding-bottom: 0;
+            }
+            .user-panel {
+                 border-radius: 0;
+            }
+            .header-action-btn.mobile-toggle { display: flex; }
+        }
+
+    </style>
+</head>
+<body class="dark-theme">
+
+    <canvas id="galaxy-canvas"></canvas>
+    
+    <!-- Input de arquivo oculto para upload -->
+    <input type="file" id="image-upload-input" accept="image/*" class="hidden">
+
+    <div class="terminal-container">
+        <!-- Header -->
+        <header class="terminal-header">
+            <button class="header-action-btn mobile-toggle" id="toggle-nav-btn" title="Navegação"><i class="fa-solid fa-bars"></i></button>
+            <div class="community-id">
+                <img id="hub-community-avatar" src="https://placehold.co/40x40/7e7ee3/FFFFFF?text=C" alt="Avatar da Comunidade">
+                <h1 id="hub-community-name">Carregando...</h1>
+            </div>
+            <div class="header-actions">
+                <button class="header-action-btn" title="Buscar"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <button class="header-action-btn" id="hub-back-btn" title="Sair da Comunidade"><i class="fa-solid fa-door-open"></i></button>
+            </div>
+        </header>
+
+        <!-- Navigation Deck (Left) -->
+        <aside class="navigation-deck" id="navigation-deck">
+            <nav class="channel-navigator"></nav>
+        </aside>
+
+        <!-- User Panel -->
+        <div class="user-panel" id="user-panel">
+            <img id="current-user-avatar" src="https://placehold.co/40x40/1e1e1e/FFFFFF?text=U" alt="Seu avatar">
+            <span id="current-user-name">Você</span>
+        </div>
+
+        <!-- Terminal (Center) -->
+        <main class="terminal-main">
+            <div class="terminal-content-area" id="terminal-content-area">
+                <!-- Conteúdo do canal e chat aqui -->
+            </div>
+            <footer class="terminal-footer" id="terminal-footer">
+                <!-- Input de chat aqui -->
+            </footer>
+        </main>
+
+        <!-- Members Panel (Right) -->
+        <aside class="members-panel" id="members-panel">
+            <!-- Lista de membros aqui -->
+        </aside>
+    </div>
+
+    <!-- Modals -->
+    <div id="gif-picker-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <header class="modal-header">
+                <h2>Selecione um GIF</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div class="gif-picker-body">
+                <input type="search" id="gif-search-input" class="form-control" placeholder="Buscar GIFs na GIPHY...">
+                <div id="gif-picker-grid" class="gif-picker-grid"><div class="spinner"></div></div>
+            </div>
+        </div>
+    </div>
+    <div id="emoji-picker-modal" class="modal-overlay hidden">
+         <div class="modal-content">
+            <header class="modal-header">
+                <h2>Selecione um Emoji</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div id="emoji-picker-body" class="emoji-picker-body">
+                <!-- Emojis serão populados pelo JS -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

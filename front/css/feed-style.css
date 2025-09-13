@@ -1,0 +1,320 @@
+/* =================================
+   FEED-SPECIFIC STYLES (REMAKE JORNADAS)
+==================================== */
+
+/* --- Layout Principal --- */
+.content-grid {
+    margin-left: 80px;
+    width: calc(100% - 80px);
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: center;
+    padding: 20px;
+    gap: 30px;
+    transition: margin-left 0.3s ease, width 0.3s ease;
+}
+
+@media (min-width: 1150px) {
+    .content-grid {
+        grid-template-columns: 680px 320px;
+    }
+}
+
+.sidebar:hover ~ .content-grid {
+     margin-left: 220px;
+     width: calc(100% - 220px);
+}
+
+.content-feed {
+    max-width: 680px;
+    width: 100%;
+}
+
+/* --- Stories Section (Mantido) --- */
+.stories-section {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    margin: 0 -20px 30px -20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.stories-section::-webkit-scrollbar { display: none; }
+.story-card { position: relative; width: 120px; height: 170px; flex-shrink: 0; cursor: pointer; transition: all 0.3s ease; clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%); background-color: var(--bg-secondary-dark); }
+.story-card:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 0 20px rgba(var(--accent-dark-rgb), 0.7); }
+.story-card-bg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; filter: brightness(0.7); }
+.story-card:hover .story-card-bg { transform: scale(1.1); filter: brightness(1); }
+.story-card-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%); z-index: 2; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding: 15px 10px; color: white; text-shadow: 1px 1px 4px rgba(0,0,0,0.8); }
+.story-card-avatar { width: 40px; height: 40px; border-radius: 50%; border: 2px solid white; margin-bottom: 8px; flex-shrink: 0; transition: transform 0.3s ease; }
+.story-card:hover .story-card-avatar { transform: scale(1.1); }
+.story-card-user { font-weight: 600; font-size: 0.85rem; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.story-card.add-story { background-color: transparent; border: 2px dashed var(--border-dark); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.story-card.add-story:hover { border-color: var(--accent-dark); background-color: rgba(var(--accent-dark-rgb), 0.1); }
+.add-story-icon { font-size: 2.5rem; color: var(--text-secondary-dark); margin-bottom: 8px; }
+.story-card.add-story .story-card-user { color: var(--text-secondary-dark); }
+
+/* --- Botão de Iniciar Jornada --- */
+.new-journey-trigger {
+    width: 100%;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+/* --- Card de Jornada --- */
+.journey-card {
+    background-color: var(--bg-secondary-dark);
+    border: 1px solid var(--border-dark);
+    border-radius: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Garante que a imagem de capa não vaze */
+}
+.light-theme .journey-card {
+    background-color: var(--bg-secondary-light);
+    border-color: var(--border-light);
+}
+
+.journey-cover-image {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.journey-card-content {
+    padding: 20px;
+}
+
+.journey-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    /* border-bottom: 1px solid var(--border-dark); */
+}
+/* .light-theme .journey-header { border-bottom-color: var(--border-light); } */
+
+.journey-user-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+.journey-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+.journey-user {
+    font-size: 0.9rem;
+    color: var(--text-secondary-dark);
+}
+.light-theme .journey-user { color: var(--text-secondary-light); }
+
+
+.journey-body {
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.journey-goal {
+    background-color: var(--bg-primary-dark);
+    padding: 15px;
+    border-radius: 12px;
+}
+.light-theme .journey-goal { background-color: var(--bg-primary-light); }
+.journey-goal strong {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--text-secondary-dark);
+}
+.light-theme .journey-goal strong { color: var(--text-secondary-light); }
+.journey-goal p {
+    font-style: italic;
+    line-height: 1.6;
+}
+
+.latest-log-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary-dark);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.light-theme .latest-log-title { color: var(--text-secondary-light); }
+
+.log-entry {
+    border-left: 3px solid var(--accent-dark);
+    padding-left: 15px;
+}
+.light-theme .log-entry { border-left-color: var(--accent-light); }
+
+.log-entry-text {
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.log-entry-media {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+.log-entry-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary-dark);
+    opacity: 0.8;
+}
+.light-theme .log-entry-time { color: var(--text-secondary-light); }
+
+.journey-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border-dark);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+.light-theme .journey-footer { border-top-color: var(--border-light); }
+.journey-footer button {
+    width: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* --- Modais de Jornada (REMAKE) --- */
+.journey-image-upload-area {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 180px;
+    border: 2px dashed var(--border-dark);
+    border-radius: 12px;
+    cursor: pointer;
+    background-color: var(--bg-primary-dark);
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+.light-theme .journey-image-upload-area {
+    background-color: var(--bg-primary-light);
+    border-color: var(--border-light);
+}
+.journey-image-upload-area:hover {
+    border-color: var(--accent-dark);
+}
+.light-theme .journey-image-upload-area:hover {
+    border-color: var(--accent-light);
+}
+
+.journey-image-placeholder {
+    text-align: center;
+    color: var(--text-secondary-dark);
+    pointer-events: none; /* Permite clicar através do placeholder */
+}
+.light-theme .journey-image-placeholder {
+    color: var(--text-secondary-light);
+}
+.journey-image-placeholder i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+.journey-image-placeholder span {
+    font-weight: 600;
+    display: block;
+}
+
+#journey-image-preview-container {
+    position: absolute;
+    inset: 0;
+}
+#journey-image-preview-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+#journey-image-preview-container:not(:empty) ~ .journey-image-placeholder {
+    opacity: 0;
+}
+
+
+.media-preview-container {
+    margin-top: 1rem;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border-dark);
+}
+.light-theme .media-preview-container { border-color: var(--border-light); }
+.media-preview-container img {
+    max-height: 280px;
+    width: 100%;
+    object-fit: cover;
+    display: block;
+}
+.remove-media-btn {
+    position: absolute; top: 10px; right: 10px; width: 30px; height: 30px;
+    border-radius: 50%; border: none; background-color: rgba(0,0,0,0.6);
+    color: white; cursor: pointer; display: flex; justify-content: center;
+    align-items: center; font-size: 1rem; z-index: 2; transition: background-color 0.2s;
+}
+.remove-media-btn:hover { background-color: rgba(0,0,0,0.8); }
+
+#add-log-modal .action-btn {
+    background: none;
+    border: 1px solid var(--border-dark);
+    color: var(--text-secondary-dark);
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.light-theme #add-log-modal .action-btn { border-color: var(--border-light); color: var(--text-secondary-light); }
+#add-log-modal .action-btn:hover { background-color: var(--bg-primary-dark); }
+.light-theme #add-log-modal .action-btn:hover { background-color: var(--bg-primary-light); }
+
+/* --- Right Sidebar (Sem alterações) --- */
+.right-sidebar { position: sticky; top: 20px; }
+.sidebar-card { background-color: var(--bg-secondary-dark); border-radius: 12px; padding: 20px; margin-bottom: 20px; border: 1px solid var(--border-dark); }
+.light-theme .sidebar-card { background-color: var(--bg-secondary-light); border-color: var(--border-light); }
+.sidebar-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+.plogs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.plog-item { height: 120px; border-radius: 8px; background-size: cover; background-position: center; position: relative; display: flex; align-items: flex-end; padding: 8px; overflow: hidden; }
+.plog-item::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); }
+.plog-item span { color: white; font-size: 0.9rem; font-weight: 600; z-index: 1; }
+.voice-channels-card ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+.voice-channels-card li { display: flex; justify-content: space-between; align-items: center; }
+.channel-info { display: flex; align-items: center; gap: 12px; }
+.channel-info i { font-size: 1.2rem; color: var(--text-secondary-dark); }
+.light-theme .channel-info i { color: var(--text-secondary-light); }
+.channel-info span { font-weight: 600; }
+.channel-info p { font-size: 0.8rem; color: var(--text-secondary-dark); margin: 0; }
+.light-theme .channel-info p { color: var(--text-secondary-light); }
+.btn-join { background-color: var(--btn-secondary-bg-dark); color: var(--btn-secondary-text-dark); border: 1px solid var(--border-dark); font-size: 0.8rem; font-weight: 600; padding: 6px 12px; border-radius: 20px; cursor: pointer; }
+.light-theme .btn-join { background-color: var(--btn-secondary-bg-light); color: var(--btn-secondary-text-light); border-color: var(--border-light); }
+
+/* --- Responsiveness --- */
+@media (max-width: 1150px) {
+    .content-grid { grid-template-columns: minmax(0, 680px); }
+    .right-sidebar { display: none; }
+}
+@media (max-width: 768px) {
+    .content-grid { margin-left: 0; width: 100%; padding: 10px; display: block; }
+    .sidebar:hover ~ .content-grid { margin-left: 0; width: 100%; }
+    .journey-card { border-radius: 0; border-left: none; border-right: none; }
+    .content-feed { padding-bottom: 60px; }
+}

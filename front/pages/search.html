@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Cósmico - Conexo</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & Source Code Pro -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* =================================
+           RADAR CÓSMICO (SEARCH.HTML REMAKE)
+        ==================================== */
+        .content-radar {
+            flex-grow: 1;
+            margin-left: 80px;
+            padding: 2rem 3rem;
+            max-width: 1400px;
+            margin-right: auto;
+            margin-left: calc(80px + (100% - 80px - 1400px) / 2);
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar:hover ~ .content-radar {
+            margin-left: 224px;
+        }
+
+        /* Header e Barra de Pesquisa */
+        .radar-header {
+            margin-bottom: 3rem;
+        }
+        .radar-header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-primary);
+        }
+        .radar-header h1 i {
+            color: var(--accent);
+            animation: pulse-radar 3s infinite;
+        }
+        @keyframes pulse-radar {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        /* NOVO: Estilo para o indicador "AO VIVO" */
+        .signal-card.live::before {
+            content: 'AO VIVO';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            background-color: #ef4444;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            z-index: 3;
+            animation: pulse-live 1.5s infinite;
+        }
+
+        @keyframes pulse-live {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .radar-search-container {
+            position: relative;
+        }
+        .radar-search-container .form-control {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px 16px 55px;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            font-family: 'Source Code Pro', monospace;
+        }
+        .radar-search-container .form-control:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(var(--accent-rgb), 0.2);
+        }
+        .radar-search-container i {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.3rem;
+        }
+
+        /* Seções e Títulos */
+        .radar-section {
+            margin-bottom: 3.5rem;
+        }
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* Carrossel Horizontal de Sinais Populares */
+        .horizontal-carousel {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1.5rem; /* Espaço para a barra de rolagem */
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent) var(--bg-primary);
+        }
+        .horizontal-carousel::-webkit-scrollbar {
+            height: 8px;
+        }
+        .horizontal-carousel::-webkit-scrollbar-thumb {
+            background-color: var(--accent);
+            border-radius: 4px;
+        }
+        .signal-card {
+            width: 320px;
+            height: 400px;
+            flex-shrink: 0;
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .signal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px var(--shadow-dark);
+        }
+        .signal-card-bg {
+            width: 100%; height: 100%; object-fit: cover;
+            filter: brightness(0.7);
+        }
+        .signal-card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 70%);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: white;
+        }
+        .signal-card-type {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+        .signal-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            line-height: 1.3;
+            margin-bottom: 0.75rem;
+        }
+        .signal-card-user {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .signal-card-user img {
+            width: 32px; height: 32px; border-radius: 50%;
+        }
+        .signal-card-user span { font-weight: 600; }
+
+        /* Grid de Comunidades */
+        .community-grid-radar {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        /* Grid de Usuários */
+        .user-card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        .user-card {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px var(--shadow-dark);
+        }
+        .user-card img {
+            width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+            margin-bottom: 1rem; border: 3px solid var(--accent);
+        }
+        .user-card .user-info h3 { font-size: 1.2rem; font-weight: 700; }
+        .user-card .user-info p {
+            color: var(--text-secondary); font-size: 0.9rem;
+            margin-top: 0.25rem; margin-bottom: 1.5rem; min-height: 3em;
+        }
+        .user-card .follow-btn {
+            width: 100%; margin-top: auto; border-radius: 8px;
+        }
+        .user-card .follow-btn.joined {
+            background-color: var(--btn-secondary-bg);
+            color: var(--btn-secondary-text);
+        }
+        .hidden-by-search { display: none !important; }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .content-radar {
+                margin-left: 0;
+                padding: 1rem;
+                padding-bottom: 80px;
+            }
+            .sidebar:hover ~ .content-radar {
+                margin-left: 0;
+            }
+            .radar-header h1 { font-size: 2rem; }
+        }
+    </style>
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+</head>
+<body class="dark-theme">
+
+    <div class="main-wrapper">
+        <!-- Sidebar (Injetado via JS) -->
+        <div id="sidebar-container"></div>
+
+        <!-- Conteúdo Principal do Radar -->
+        <main class="content-radar">
+            <header class="radar-header">
+                <h1><i class="fa-solid fa-satellite-dish"></i> Radar Cósmico</h1>
+                <div class="radar-search-container">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="radar-search-input" class="form-control" placeholder="Buscar sinais, exploradores, comunidades...">
+                </div>
+            </header>
+
+            <!-- Seção de Sinais Populares -->
+            <section class="radar-section" data-section="sinais">
+                <h2 class="section-title">Sinais Populares</h2>
+                <div class="horizontal-carousel" id="popular-signals-carousel">
+                    <!-- Cards de Sinais renderizados pelo explore.js -->
+                </div>
+            </section>
+
+            <!-- Seção de Comunidades em Ascensão -->
+            <section class="radar-section" data-section="comunidades">
+                <h2 class="section-title">Comunidades em Ascensão</h2>
+                <div class="community-grid-radar" id="rising-communities-grid">
+                    <!-- Cards de Comunidades renderizados pelo explore.js -->
+                </div>
+            </section>
+
+            <!-- Seção de Novos Exploradores -->
+            <section class="radar-section" data-section="exploradores">
+                <h2 class="section-title">Novos Exploradores</h2>
+                <div class="user-card-grid" id="new-explorers-grid">
+                    <!-- Cards de Usuários renderizados pelo explore.js -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Music Player (Injetado via JS) -->
+    <div id="music-player-container"></div>
+
+    <script type="module" src="../js/main.js"></script>
+    
+</body>
+</html>

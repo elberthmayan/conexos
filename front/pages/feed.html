@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed de Jornadas - Conexo</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <!-- Script para aplicar o tema antes da renderização e evitar "pisca-pisca" -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+    <style>
+        /* =================================
+           FEED REMAKE STYLES
+        ==================================== */
+
+        /* --- Layout Principal e Responsividade --- */
+        .content-grid {
+            margin-left: 80px;
+            width: calc(100% - 80px);
+            display: grid;
+            grid-template-columns: 1fr;
+            justify-content: center;
+            padding: 30px;
+            gap: 40px;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+        }
+
+        .content-feed {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .right-sidebar {
+            display: none; /* Escondido por padrão, aparece em telas maiores */
+            position: sticky;
+            top: 30px;
+            height: fit-content;
+        }
+        
+        @media (min-width: 1100px) {
+            .content-grid {
+                grid-template-columns: minmax(0, 700px) 340px;
+                justify-content: center;
+            }
+            .right-sidebar {
+                display: block;
+            }
+        }
+        
+        .sidebar:hover ~ .content-grid {
+             margin-left: 220px;
+             width: calc(100% - 220px);
+        }
+        
+        @media (max-width: 768px) {
+            .content-grid {
+                margin-left: 0;
+                width: 100%;
+                padding: 15px;
+                padding-bottom: 80px; /* Espaço para a barra de navegação inferior */
+            }
+             .sidebar:hover ~ .content-grid {
+                margin-left: 0;
+                width: 100%;
+            }
+        }
+
+        /* --- Stories Section (Estilo Original Corrigido) --- */
+        .stories-section {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            margin: 0 -20px 30px -20px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .stories-section::-webkit-scrollbar { display: none; }
+        
+        .story-card { 
+            position: relative; 
+            width: 120px; 
+            height: 170px; 
+            flex-shrink: 0; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            clip-path: polygon(15% 0, 100% 0, 85% 100%, 0% 100%); 
+            background-color: var(--bg-secondary-dark); 
+        }
+        .story-card:hover { 
+            transform: translateY(-5px) scale(1.05); 
+            box-shadow: 0 0 20px rgba(var(--accent-dark-rgb), 0.7); 
+        }
+        .story-card-bg { 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: transform 0.4s ease; 
+            filter: brightness(0.7); 
+        }
+        .story-card:hover .story-card-bg { 
+            transform: scale(1.1); 
+            filter: brightness(1); 
+        }
+        .story-card-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%); 
+            z-index: 2; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: flex-end; 
+            align-items: center; 
+            padding: 15px 10px; 
+            color: white; 
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8); 
+        }
+        .story-card-avatar { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            border: 2px solid white; 
+            margin-bottom: 8px; 
+            flex-shrink: 0; 
+            transition: transform 0.3s ease; 
+        }
+        .story-card:hover .story-card-avatar { 
+            transform: scale(1.1); 
+        }
+        .story-card-user { 
+            font-weight: 600; 
+            font-size: 0.85rem; 
+            text-align: center; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            width: 100%; 
+        }
+        .story-card.add-story { 
+            background-color: transparent; 
+            border: 2px dashed var(--border-dark); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+        }
+        .story-card.add-story:hover { 
+            border-color: var(--accent-dark); 
+            background-color: rgba(var(--accent-dark-rgb), 0.1); 
+        }
+        .add-story-icon { 
+            font-size: 2.5rem; 
+            color: var(--text-secondary-dark); 
+            margin-bottom: 8px; 
+        }
+        .story-card.add-story .story-card-user { 
+            color: var(--text-secondary-dark); 
+        }
+        .light-theme .story-card.add-story {
+             border-color: var(--border-light);
+             background-color: transparent;
+        }
+         .light-theme .add-story-icon, .light-theme .story-card.add-story .story-card-user {
+            color: var(--text-secondary-light);
+        }
+        .light-theme .story-card.add-story:hover {
+             border-color: var(--accent-light);
+             background-color: rgba(var(--accent-light-rgb), 0.1);
+        }
+
+
+        /* --- Card de Jornada (Post) --- */
+        .journey-card-v2 {
+            background-color: var(--bg-secondary-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .journey-v2-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px 20px 15px 20px;
+        }
+        .journey-v2-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .journey-v2-info h2 { font-size: 1.2rem; font-weight: 700; margin: 0; }
+        .journey-v2-info span { font-size: 0.9rem; color: var(--text-secondary-dark); }
+        
+        .journey-v2-cover {
+            height: auto;
+            max-height: 450px;
+            width: 100%;
+            object-fit: cover;
+            cursor: pointer;
+        }
+
+        .journey-v2-body { padding: 15px 20px; }
+        .journey-v2-goal {
+            font-style: italic;
+            color: var(--text-secondary-dark);
+            border-left: 3px solid var(--accent-dark);
+            padding-left: 15px;
+            margin-bottom: 15px;
+        }
+        .journey-v2-latest-log p { line-height: 1.6; margin: 0; }
+        .journey-v2-latest-log img {
+            width: 100%;
+            max-height: 350px;
+            object-fit: cover;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        .journey-v2-latest-log .log-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary-dark);
+            opacity: 0.8;
+            margin-top: 8px;
+            display: block;
+        }
+        
+        .journey-v2-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-dark);
+            display: flex;
+            gap: 10px;
+            justify-content: space-between;
+        }
+        .journey-v2-footer button {
+            width: auto;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* --- Sidebar Direita --- */
+        .sidebar-card { 
+            background-color: var(--bg-secondary-dark); 
+            border-radius: 16px; 
+            padding: 20px; 
+            margin-bottom: 20px; 
+            border: 1px solid var(--border-dark); 
+        }
+        .sidebar-card h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 16px; }
+        .plogs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .plog-item { 
+            height: 120px; 
+            border-radius: 8px; 
+            background-size: cover; 
+            background-position: center; 
+            position: relative; 
+            display: flex; 
+            align-items: flex-end; 
+            padding: 8px; 
+            overflow: hidden; 
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .plog-item:hover { transform: scale(1.05); }
+        .plog-item::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); }
+        .plog-item span { color: white; font-size: 0.9rem; font-weight: 600; z-index: 1; }
+        
+        .voice-channels-card ul { list-style: none; display: flex; flex-direction: column; gap: 16px; }
+        .voice-channels-card li { display: flex; justify-content: space-between; align-items: center; }
+        .channel-info { display: flex; align-items: center; gap: 12px; }
+        .channel-info i { font-size: 1.2rem; color: var(--text-secondary-dark); }
+        .channel-info span { font-weight: 600; }
+        .channel-info p { font-size: 0.8rem; color: var(--text-secondary-dark); margin: 0; }
+        .btn-join { 
+            background-color: var(--btn-secondary-bg-dark); 
+            color: var(--btn-secondary-text-dark); 
+            border: none;
+            font-size: 0.8rem; 
+            font-weight: 600; 
+            padding: 8px 16px; 
+            border-radius: 20px; 
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .btn-join:hover { background-color: var(--accent-dark); color: white; }
+
+        /* Estilos do Tema Claro */
+        .light-theme .journey-card-v2,
+        .light-theme .sidebar-card {
+            background-color: var(--bg-secondary-light);
+            border-color: var(--border-light);
+        }
+        .light-theme .journey-v2-info span,
+        .light-theme .journey-v2-latest-log .log-time { color: var(--text-secondary-light); }
+        .light-theme .journey-v2-goal { color: var(--text-secondary-light); border-left-color: var(--accent-light); }
+        .light-theme .journey-v2-footer { border-top-color: var(--border-light); }
+        .light-theme .channel-info i,
+        .light-theme .channel-info p { color: var(--text-secondary-light); }
+        .light-theme .btn-join { background-color: var(--btn-secondary-bg-light); color: var(--btn-secondary-text-light); }
+        .light-theme .btn-join:hover { background-color: var(--accent-light); color: white; }
+
+        /* --- Story Viewer Modal (CAROUSEL REMAKE) --- */
+        #story-viewer-modal .modal-overlay {
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .story-viewer-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .story-viewer-carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2vw; /* Espaçamento entre as previews e o story principal */
+            width: 100%;
+            height: 100%;
+        }
+
+        .story-viewer-content {
+            width: 100%;
+            height: 95%;
+            max-width: 420px;
+            max-height: 750px;
+            background-color: #000;
+            border-radius: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            flex-shrink: 0;
+        }
+        .story-preview-card {
+            width: 100px;
+            height: 180px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            background-color: #1a1d23;
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .story-preview-card.prev {
+            transform: translateX(20px) scale(0.9);
+            opacity: 0.6;
+        }
+        .story-preview-card.next {
+            transform: translateX(-20px) scale(0.9);
+            opacity: 0.6;
+        }
+        .story-preview-card:hover {
+            transform: scale(1);
+            opacity: 1;
+        }
+        .story-preview-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.6);
+        }
+
+        .story-progress-bars {
+            position: absolute; top: 10px; left: 10px; right: 10px;
+            display: flex; gap: 4px; z-index: 10;
+        }
+        .story-progress-bar {
+            flex-grow: 1; height: 3px; background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 2px; overflow: hidden;
+        }
+        .progress-bar-inner {
+            height: 100%; background-color: white; width: 0%;
+        }
+        .story-progress-bar.active .progress-bar-inner {
+             animation-duration: 5s;
+             animation-name: fillProgressBar;
+             animation-timing-function: linear;
+             animation-fill-mode: forwards;
+        }
+        @keyframes fillProgressBar { from { width: 0%; } to { width: 100%; } }
+        
+        .story-header {
+            position: absolute; top: 20px; left: 15px; right: 15px;
+            display: flex; justify-content: space-between; align-items: center; z-index: 10;
+        }
+        .story-user-info { display: flex; align-items: center; gap: 10px; }
+        .story-user-info img { width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8); }
+        .story-user-info span { font-weight: 600; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        
+        .story-media-container { flex-grow: 1; display: flex; align-items: center; justify-content: center; }
+        .story-media-container img {
+            max-width: 100%; max-height: 100%; object-fit: contain;
+        }
+        
+        .story-nav-btn {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: none; border: none; font-size: 2.5rem;
+            color: rgba(255,255,255,0.7); cursor: pointer; z-index: 11;
+            text-shadow: 0 2px 10px #000;
+        }
+        .story-nav-btn.prev { left: 15px; }
+        .story-nav-btn.next { right: 15px; }
+        .close-modal-btn.global-close {
+             position: absolute; top: 20px; right: 20px; z-index: 20; color: white;
+        }
+        @media (max-width: 768px) {
+            .story-preview-card { display: none; }
+            .story-viewer-content { height: 100%; max-height: 100%; border-radius: 0; }
+        }
+
+       
+        /* --- MODAL REMAKE GERAL --- */
+        .modal-content.remake {
+            background: var(--bg-secondary-dark);
+            border: 1px solid var(--border-dark);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            padding: 0;
+        }
+        .light-theme .modal-content.remake {
+            background: var(--bg-secondary-light);
+            border-color: var(--border-light);
+        }
+        .remake .modal-header {
+             padding: 1.5rem;
+        }
+        .remake .modal-header h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .remake form {
+            padding: 0 1.5rem 1.5rem;
+        }
+
+        .remake-upload-area {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; min-height: 200px; border-radius: 12px;
+            border: 2px dashed var(--border-dark); cursor: pointer;
+            background-color: var(--bg-primary-dark);
+            margin-bottom: 1.5rem; overflow: hidden; transition: border-color 0.2s;
+            position: relative;
+        }
+        .light-theme .remake-upload-area {
+             border-color: var(--border-light);
+             background-color: var(--bg-primary-light);
+        }
+        .remake-upload-area:hover { border-color: var(--accent-dark); }
+        .light-theme .remake-upload-area:hover { border-color: var(--accent-light); }
+        
+        .remake-upload-preview-container { 
+            position: absolute; inset: 0;
+        }
+        .remake-upload-preview-container img { 
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .remake-upload-placeholder { text-align: center; color: var(--text-secondary-dark); pointer-events: none; }
+        .light-theme .remake-upload-placeholder { color: var(--text-secondary-light); }
+        .remake-upload-placeholder i { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .remake-upload-preview-container:not(:empty) ~ .remake-upload-placeholder {
+            opacity: 0;
+        }
+    </style>
+</head>
+<body class="dark-theme">
+
+    <!-- Hidden File Inputs for uploads -->
+    <input type="file" id="log-media-upload-input" accept="image/*,video/*" style="display: none;">
+    <input type="file" id="journey-image-input" accept="image/*" style="display: none;">
+    <input type="file" id="story-image-input" accept="image/*" style="display: none;" required>
+
+    <!-- ===== Main Wrapper ===== -->
+    <div class="main-wrapper">
+        
+        <!-- ===== Sidebar Navigation (Injetado via JS) ===== -->
+        <div id="sidebar-container"></div>
+
+        <!-- ===== Content Grid (Feed + Right Sidebar) ===== -->
+        <div class="content-grid">
+            <!-- ===== Main Content Feed ===== -->
+            <main class="content-feed">
+                <!-- Stories Section -->
+                <section class="stories-section">
+                    <div class="story-card add-story" data-story-user="add">
+                        <div class="add-story-icon"><i class="fa-solid fa-plus"></i></div>
+                        <span class="story-card-user">Adicionar Story</span>
+                    </div>
+                     <!-- Stories will be rendered by JS -->
+                </section>
+
+                <!-- Gatilho para Iniciar uma Nova Jornada -->
+                <button class="btn-primary new-journey-trigger" id="open-start-journey-modal-btn">
+                    <i class="fa-solid fa-map-signs"></i> Começar uma Nova Jornada
+                </button>
+
+                <!-- Feed Container para as Jornadas -->
+                <div id="feed-container">
+                    <!-- Jornadas serão carregadas dinamicamente aqui pelo JS -->
+                </div>
+            </main>
+
+            <!-- ===== Right Sidebar ===== -->
+            <aside class="right-sidebar">
+                <div class="sidebar-card plogs-card">
+                    <h4>Plogs Recentes</h4>
+                    <div class="plogs-grid">
+                        <div class="plog-item" style="background-image: url('https://i.pinimg.com/1200x/37/8c/42/378c4240fd333d1e3e17b58b4cfafa2a.jpg');"><span>Ao Vivo</span></div>
+                        <div class="plog-item" style="background-image: url('https://gameluster.com/wp-content/uploads/2023/05/vg.jpg');"><span>Game</span></div>
+                        <div class="plog-item" style="background-image: url('https://images.hdqwalls.com/download/synthwave-cityscape-4k-6x-1920x1080.jpg');"><span>SynthWave</span></div>
+                        <div class="plog-item" style="background-image: url('https://i.pinimg.com/originals/36/a4/75/36a47579511bcddf77651709e88357e8.jpg');"><span>PixelArt</span></div>
+                    </div>
+                </div>
+                <div class="sidebar-card voice-channels-card">
+                    <h4>Canais de Voz Ativos</h4>
+                    <ul>
+                        <li>
+                            <div class="channel-info">
+                                <i class="fa-solid fa-headset"></i>
+                                <div>
+                                    <span># Bate-papo Dev</span>
+                                    <p>12 pessoas online</p>
+                                </div>
+                            </div>
+                            <button class="btn-join">Entrar</button>
+                        </li>
+                        <li>
+                            <div class="channel-info">
+                                <i class="fa-solid fa-music"></i>
+                                <div>
+                                    <span># Lofi & Chill</span>
+                                    <p>42 pessoas online</p>
+                                </div>
+                            </div>
+                            <button class="btn-join">Entrar</button>
+                        </li>
+                         <li>
+                            <div class="channel-info">
+                                <i class="fa-solid fa-gamepad"></i>
+                                <div>
+                                    <span># Jogatina</span>
+                                    <p>8 pessoas online</p>
+                                </div>
+                            </div>
+                            <button class="btn-join">Entrar</button>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <!-- ===== Modals ===== -->
+
+    <!-- Story Viewer Modal (CAROUSEL REMAKE) -->
+    <div id="story-viewer-modal" class="modal-overlay hidden">
+        <button class="close-modal-btn global-close">&times;</button>
+        <div class="story-viewer-wrapper">
+             <button class="story-nav-btn prev" id="story-prev-btn"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="story-viewer-carousel">
+                <div class="story-preview-card prev" id="story-preview-prev">
+                    <img src="" alt="Previous Story Preview">
+                </div>
+                <div class="story-viewer-content">
+                    <div class="story-progress-bars" id="story-progress-bars-container"></div>
+                    <div class="story-header">
+                        <div class="story-user-info">
+                            <img id="story-viewer-avatar" src="" alt="Avatar">
+                            <span id="story-viewer-username"></span>
+                        </div>
+                    </div>
+                    <div class="story-media-container">
+                        <img id="story-viewer-media" src="" alt="Story Media">
+                    </div>
+                </div>
+                <div class="story-preview-card next" id="story-preview-next">
+                    <img src="" alt="Next Story Preview">
+                </div>
+            </div>
+             <button class="story-nav-btn next" id="story-next-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Add Story Modal (REMAKE) -->
+    <div id="add-story-modal" class="modal-overlay hidden">
+        <div class="modal-content remake">
+            <header class="modal-header">
+                <h2>Adicionar ao seu Story</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <form id="add-story-form">
+                <label for="story-image-input" class="remake-upload-area">
+                    <div id="story-image-preview-container" class="remake-upload-preview-container"></div>
+                    <div class="remake-upload-placeholder">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Clique para escolher uma imagem</span>
+                    </div>
+                </label>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary close-modal-btn">Descartar</button>
+                    <button type="submit" class="btn-primary">Postar Story</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal para INICIAR uma Jornada (REMAKE) -->
+    <div id="start-journey-modal" class="modal-overlay hidden">
+        <div class="modal-content remake">
+            <header class="modal-header">
+                <h2>Começar Nova Jornada</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <form id="start-journey-form">
+                
+                <label for="journey-image-input" class="remake-upload-area">
+                    <div id="journey-image-preview-container" class="remake-upload-preview-container"></div>
+                    <div class="remake-upload-placeholder">
+                        <i class="fa-solid fa-camera-retro"></i>
+                        <span>Adicionar uma capa épica</span>
+                    </div>
+                </label>
+
+                <div class="form-group">
+                    <label for="journey-title-input">Título da Jornada</label>
+                    <input type="text" id="journey-title-input" class="form-control" placeholder="Ex: Zerando Cyberpunk 2077" required>
+                </div>
+                <div class="form-group">
+                    <label for="journey-goal-input">Qual é o seu objetivo?</label>
+                    <textarea id="journey-goal-input" class="form-control" rows="3" placeholder="Ex: Completar a história principal e todas as side-quests importantes." required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Iniciar Jornada</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para ADICIONAR um Log a uma Jornada -->
+    <div id="add-log-modal" class="modal-overlay hidden">
+        <div class="modal-content remake">
+            <header class="modal-header">
+                <h2>Registrar Progresso</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <form id="add-log-form">
+                <div class="form-group">
+                    <label for="log-text-input">O que aconteceu?</label>
+                    <textarea id="log-text-input" class="form-control" rows="4" placeholder="Descreva seu progresso, uma descoberta ou um momento épico..."></textarea>
+                </div>
+                <div id="log-media-preview-container" class="media-preview-container hidden"></div>
+                <div class="form-actions" style="justify-content: space-between; align-items: center;">
+                    <button type="button" class="action-btn" id="log-media-btn" title="Adicionar Imagem/Vídeo"><i class="fa-solid fa-image"></i> Adicionar Mídia</button>
+                    <button type="submit" class="btn-primary">Salvar no Diário</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal para visualizar o Diário de Bordo completo -->
+    <div id="journey-logbook-modal" class="modal-overlay hidden">
+        <div class="modal-content logbook-modal">
+             <header class="modal-header">
+                <h2 id="logbook-title">Diário de Bordo</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div class="logbook-body" id="logbook-body-content">
+                <!-- Conteúdo do diário será injetado aqui -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Music Player (Injetado via JS) -->
+    <div id="music-player-container"></div>
+
+    <!-- Main JavaScript File -->
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

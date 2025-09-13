@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunidades - Conexo</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="../css/style.css">
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+</head>
+<body class="dark-theme">
+
+    <div class="main-wrapper">
+        <!-- Sidebar (Injetado via JS) -->
+        <div id="sidebar-container"></div>
+
+        <!-- Main Content -->
+        <main class="content-communities">
+            
+            <header class="communities-header">
+                <h1>Comunidades</h1>
+                <button class="btn-primary" id="create-community-btn"><i class="fa-solid fa-plus"></i> Criar Comunidade</button>
+            </header>
+
+            <div class="communities-main-content">
+                <!-- Suas Comunidades -->
+                <section class="community-section">
+                    <h2 class="section-title">Suas Comunidades</h2>
+                    <div class="community-grid" id="your-communities-grid">
+                        <!-- Cards das suas comunidades serão renderizados aqui -->
+                    </div>
+                </section>
+
+                 <!-- Descubra Novas Comunidades -->
+                <section class="community-section">
+                    <h2 class="section-title">Descubra</h2>
+                    <div class="community-grid" id="discover-communities-grid">
+                        <!-- Cards para descobrir serão renderizados aqui -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- ===== Modals ===== -->
+    <div id="create-community-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+             <header class="modal-header">
+                <h2>Criar Nova Comunidade</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <form id="create-community-form">
+                <div class="form-group">
+                    <label for="community-name-input">Nome da Comunidade</label>
+                    <input type="text" id="community-name-input" class="form-control" placeholder="Ex: Fãs de Ficção Científica" required>
+                </div>
+                <div class="form-group">
+                    <label for="community-desc-input">Descrição</label>
+                    <textarea id="community-desc-input" class="form-control" rows="3" placeholder="Descreva o propósito da sua comunidade." required></textarea>
+                </div>
+                
+                 <!-- UPLOAD DE IMAGENS REMAKE -->
+                <div class="image-upload-group">
+                     <label for="community-avatar-input" class="image-preview-wrapper" title="Escolher avatar">
+                         <div class="image-preview-placeholder" id="avatar-placeholder">
+                             <i class="fa-solid fa-camera"></i>
+                             <span>Avatar</span>
+                         </div>
+                         <img id="avatar-preview" src="#" alt="Avatar Preview" class="hidden">
+                     </label>
+                     <label for="community-banner-input" class="image-preview-wrapper banner-preview-wrapper" title="Escolher banner">
+                         <div class="image-preview-placeholder" id="banner-placeholder">
+                             <i class="fa-solid fa-image"></i>
+                             <span>Clique para adicionar um banner</span>
+                         </div>
+                         <img id="banner-preview" src="#" alt="Banner Preview" class="hidden">
+                     </label>
+                </div>
+
+                <input type="file" id="community-banner-input" accept="image/*" class="hidden">
+                <input type="file" id="community-avatar-input" accept="image/*" class="hidden">
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary close-modal-btn">Cancelar</button>
+                    <button type="submit" class="btn-primary">Criar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- ===== Draggable Floating Music Player (Injetado via JS) ===== -->
+    <div id="music-player-container"></div>
+
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

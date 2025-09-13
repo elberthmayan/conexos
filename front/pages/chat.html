@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conexo Chat</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Main and Chat-specific Stylesheets -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/chat-style.css">
+    <!-- Script para aplicar o tema antes da renderização -->
+    <script>
+      (function() {
+        const theme = localStorage.getItem('theme') || 'dark-theme'; 
+        document.documentElement.className = theme;
+      })();
+    </script>
+</head>
+<body class="dark-theme">
+
+    <!-- Inputs de arquivo ocultos -->
+    <input type="file" id="image-upload-input" accept="image/*,video/*" style="display: none;">
+    <input type="file" id="audio-upload-input" accept="audio/*" style="display: none;">
+
+    <div class="main-wrapper">
+        <!-- Sidebar (Injetado via JS) -->
+        <div id="sidebar-container"></div>
+
+        <!-- Container Principal do Chat Remasterizado -->
+        <main id="chat-app-container" class="content-chat-container">
+            
+            <!-- Visão de Chat -->
+            <div class="chat-main-view">
+                <!-- Cabeçalho com abas de conversa -->
+                <header class="chat-conversations-header">
+                    <div class="header-title">
+                        <i class="fa-solid fa-comments"></i>
+                        <h2>Canais de Comunicação</h2>
+                    </div>
+                    <div class="conversations-tabs" id="conversations-list">
+                        <!-- Abas de conversa serão injetadas aqui -->
+                    </div>
+                    <button class="new-chat-btn"><i class="fa-solid fa-plus"></i></button>
+                </header>
+
+                <!-- Janela de Chat Ativa -->
+                <section class="chat-window-active">
+                    <!-- Estado inicial: Nenhuma conversa selecionada -->
+                    <div id="no-chat-selected-view" class="initial-view">
+                        <i class="fa-solid fa-satellite-dish"></i>
+                        <h2>Nenhum canal ativo</h2>
+                        <p>Selecione um contato para iniciar a transmissão.</p>
+                    </div>
+                    
+                    <!-- Conteúdo do chat (escondido por padrão) -->
+                    <header id="chat-window-header" class="hidden">
+                         <div class="user-info">
+                            <div class="avatar-wrapper">
+                                <img id="chat-window-avatar" src="" alt="Avatar" class="chat-window-avatar">
+                                <div id="chat-window-status-dot" class="status-dot"></div>
+                            </div>
+                            <div>
+                                <h3 id="chat-window-name"></h3>
+                                <span id="chat-window-status"></span>
+                            </div>
+                         </div>
+                         <div class="chat-actions">
+                            <button id="voice-call-btn" title="Chamada de Voz"><i class="fa-solid fa-phone"></i></button>
+                            <button id="video-call-btn" title="Chamada de Vídeo"><i class="fa-solid fa-video"></i></button>
+                         </div>
+                    </header>
+                    <div id="message-area" class="message-area hidden">
+                        <!-- Mensagens serão injetadas aqui -->
+                    </div>
+                    <footer id="chat-input-area" class="chat-input-area hidden">
+                        <div class="attachment-wrapper">
+                            <button id="attachment-btn" class="input-action-btn" title="Anexar"><i class="fa-solid fa-paperclip"></i></button>
+                            <div id="attachment-options" class="attachment-options hidden">
+                                <button id="image-send-btn"><i class="fa-solid fa-image"></i><span>Fotos e Vídeos</span></button>
+                                <button id="audio-upload-btn"><i class="fa-solid fa-headphones"></i><span>Áudio</span></button>
+                            </div>
+                        </div>
+                        <div class="input-container">
+                            <input type="text" id="chat-input" placeholder="Digite uma mensagem...">
+                            <div id="recording-indicator" class="recording-indicator hidden">
+                                <span class="recording-dot"></span> Gravando... <span id="recording-timer">0:00</span>
+                            </div>
+                        </div>
+                        <button id="emoji-btn" class="input-action-btn" title="Emojis"><i class="fa-regular fa-face-smile"></i></button>
+                        <button id="gif-btn" class="input-action-btn" title="GIF"><i class="fa-solid fa-gift"></i></button>
+                        <button id="audio-record-btn" class="btn-send" title="Gravar Áudio"><i class="fa-solid fa-microphone"></i></button>
+                        <button id="send-message-btn" class="btn-send hidden" title="Enviar">
+                            <i class="fa-solid fa-paper-plane"></i>
+                        </button>
+                    </footer>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modais (permanecem os mesmos) -->
+    <div id="gif-picker-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <header class="gif-picker-header">
+                <h2>Selecione um GIF</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div class="gif-picker-body">
+                <input type="search" id="gif-search-input" class="form-control" placeholder="Buscar GIFs na GIPHY...">
+                <div id="gif-picker-grid" class="gif-picker-grid">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="emoji-picker-modal" class="modal-overlay hidden">
+        <div class="modal-content emoji-modal-content">
+            <header class="emoji-picker-header">
+                <h2>Selecione um Emoji</h2>
+                <button class="close-modal-btn">&times;</button>
+            </header>
+            <div id="emoji-picker" class="emoji-picker"></div>
+        </div>
+    </div>
+    
+    <script type="module" src="../js/main.js"></script>
+</body>
+</html>

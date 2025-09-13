@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo à Conexo</title>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter e Righteous -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Righteous&display=swap" rel="stylesheet">
+    <!-- Estilos da Página de Login -->
+    <link rel="stylesheet" href="front/css/login-style.css">
+</head>
+<body class="auth-page dark-theme">
+
+    <!-- Fundo animado de galáxia (MELHORADO COM ESTRELAS CADENTES) -->
+    <canvas id="galaxy-canvas"></canvas>
+
+    <main class="auth-container">
+        <!-- Lado do Formulário -->
+        <section class="auth-form-wrapper">
+            <!-- Título dinâmico -->
+            <div id="login-form-content">
+                <h2>Boas-vindas de volta!</h2>
+                <p class="form-subtitle">Sua jornada pela galáxia continua.</p>
+            </div>
+             <div id="register-form-content" class="form-hidden">
+                <h2>Crie sua conta na Conexo</h2>
+                <p class="form-subtitle">Comece a explorar o universo.</p>
+            </div>
+
+            <!-- Botões de alternância -->
+            <div class="form-toggle">
+                <div class="toggle-slider"></div>
+                <button id="show-login-btn" class="toggle-btn active">Entrar</button>
+                <button id="show-register-btn" class="toggle-btn">Registrar</button>
+            </div>
+
+            <!-- Formulário de Login -->
+            <form id="login-form" action="front/pages/feed.html" method="get">
+                <div class="form-group">
+                    <input type="email" id="login-email" class="form-input" placeholder=" " required>
+                    <label for="login-email" class="form-label">Email</label>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="login-password" class="form-input" placeholder=" " required>
+                    <label for="login-password" class="form-label">Senha</label>
+                </div>
+                <div class="form-options">
+                    <a href="#" class="forgot-password">Esqueceu a senha?</a>
+                </div>
+                <button type="submit" class="btn-primary btn-submit">Entrar</button>
+            </form>
+
+            <!-- Formulário de Registro -->
+            <form id="register-form" action="front/pages/feed.html" method="get" class="form-hidden">
+                 <div class="form-group">
+                    <input type="text" id="register-username" class="form-input" placeholder=" " required>
+                    <label for="register-username" class="form-label">Nome de usuário</label>
+                </div>
+                <div class="form-group">
+                    <input type="email" id="register-email" class="form-input" placeholder=" " required>
+                    <label for="register-email" class="form-label">Email</label>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="register-password" class="form-input" placeholder=" " required>
+                    <label for="register-password" class="form-label">Senha</label>
+                </div>
+                 <button type="submit" class="btn-primary btn-submit">Criar Conta</button>
+            </form>
+            
+            <div class="divider">OU</div>
+
+            <!-- Login Social -->
+            <div class="social-login">
+                <a href="#" class="social-btn"><i class="fab fa-google"></i> Google</a>
+                <a href="#" class="social-btn"><i class="fab fa-github"></i> GitHub</a>
+            </div>
+
+        </section>
+
+        <!-- Lado da Arte -->
+        <section class="auth-art-wrapper">
+            <i class="fa-solid fa-meteor logo-icon"></i>
+            <div id="art-content-login" class="art-content">
+                <h3>Conexos.</h3>
+                <p>Sua comunidade aguarda seu retorno. Continue de onde parou.</p>
+            </div>
+            <div id="art-content-register" class="art-content form-hidden">
+                 <h3>Conexos.</h3>
+                 <p>Crie sua conta, explore novas comunidades e deixe sua marca na galáxia.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript Embutido -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Lógica para alternar entre os formulários de login e registro
+            const showLoginBtn = document.getElementById('show-login-btn');
+            const showRegisterBtn = document.getElementById('show-register-btn');
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const loginContent = document.getElementById('login-form-content');
+            const registerContent = document.getElementById('register-form-content');
+            const artLoginContent = document.getElementById('art-content-login');
+            const artRegisterContent = document.getElementById('art-content-register');
+            const toggleSlider = document.querySelector('.toggle-slider');
+
+            showLoginBtn.addEventListener('click', () => switchForm('login'));
+            showRegisterBtn.addEventListener('click', () => switchForm('register'));
+
+            function switchForm(formToShow) {
+                const isLogin = formToShow === 'login';
+                loginForm.classList.toggle('form-hidden', !isLogin);
+                registerForm.classList.toggle('form-hidden', isLogin);
+                loginContent.classList.toggle('form-hidden', !isLogin);
+                registerContent.classList.toggle('form-hidden', isLogin);
+                artLoginContent.classList.toggle('form-hidden', !isLogin);
+                artRegisterContent.classList.toggle('form-hidden', isLogin);
+                showLoginBtn.classList.toggle('active', isLogin);
+                showRegisterBtn.classList.toggle('active', !isLogin);
+                toggleSlider.style.transform = isLogin ? 'translateX(0%)' : 'translateX(100%)';
+            }
+
+            // --- LÓGICA DO FUNDO DE GALÁXIA MELHORADO (COM ESTRELAS CADENTES) ---
+            const canvas = document.getElementById('galaxy-canvas');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                let stars = [];
+                let shootingStars = []; // Array para as estrelas cadentes
+                let animationFrameId;
+
+                const setCanvasSize = () => {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                };
+
+                // Função para criar o campo de estrelas
+                const createStarfield = () => {
+                    stars = [];
+                    const starCount = Math.floor((canvas.width * canvas.height) / 2500); // Mais estrelas para um visual mais denso
+                    for (let i = 0; i < starCount; i++) {
+                        stars.push({
+                            x: Math.random() * canvas.width,
+                            y: Math.random() * canvas.height,
+                            radius: Math.random() * 1.2 + 0.3, // Variedade no tamanho
+                            vx: (Math.random() - 0.5) * 0.2, // Velocidade base mais lenta
+                            vy: (Math.random() - 0.5) * 0.2,
+                            opacity: Math.random() * 0.5 + 0.3 // Variedade na opacidade para dar profundidade
+                        });
+                    }
+                };
+
+                // Função para criar uma estrela cadente
+                const createShootingStar = () => {
+                    const x = Math.random() * canvas.width;
+                    const y = Math.random() * 50; // Começa perto do topo
+                    const len = Math.random() * 80 + 10;
+                    const speed = Math.random() * 10 + 5;
+                    const angle = Math.PI / 4; // Ângulo consistente para efeito de chuva de meteoros
+
+                    shootingStars.push({
+                        x: x, y: y, len: len, speed: speed, angle: angle,
+                        life: 1, // Vida da estrela cadente, diminui até 0
+                    });
+                };
+
+                const animate = () => {
+                    // Desenha o fundo com um gradiente sutil para um efeito de nebulosa
+                    const gradient = ctx.createRadialGradient(canvas.width / 2, canvas.height / 2, 0, canvas.width / 2, canvas.height / 2, canvas.width / 2);
+                    gradient.addColorStop(0, 'rgba(30, 30, 60, 0.2)');
+                    gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                    ctx.fillStyle = '#0D0F12'; // Cor de fundo base do CSS
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // Anima e desenha as estrelas normais
+                    stars.forEach(star => {
+                        ctx.beginPath();
+                        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+                        ctx.fillStyle = `rgba(224, 226, 231, ${star.opacity})`;
+                        ctx.fill();
+
+                        star.x += star.vx;
+                        star.y += star.vy;
+
+                        // Recicla estrelas que saem da tela
+                        if (star.x < 0) star.x = canvas.width;
+                        if (star.x > canvas.width) star.x = 0;
+                        if (star.y < 0) star.y = canvas.height;
+                        if (star.y > canvas.height) star.y = 0;
+                    });
+
+                    // Chance de criar uma nova estrela cadente
+                    if (Math.random() < 0.015) {
+                        createShootingStar();
+                    }
+
+                    // Anima e desenha as estrelas cadentes
+                    shootingStars.forEach((ss, index) => {
+                        // Atualiza a posição
+                        ss.x += ss.speed * Math.cos(ss.angle);
+                        ss.y += ss.speed * Math.sin(ss.angle);
+                        ss.life -= 0.01; // Velocidade do fade out
+
+                        // Remove se a vida acabar ou sair da tela
+                        if (ss.life <= 0 || ss.x > canvas.width || ss.y > canvas.height) {
+                            shootingStars.splice(index, 1);
+                            return;
+                        }
+                        
+                        // Desenha a estrela cadente com uma cauda
+                        const tailX = ss.x - ss.len * Math.cos(ss.angle);
+                        const tailY = ss.y - ss.len * Math.sin(ss.angle);
+                        
+                        const tailGradient = ctx.createLinearGradient(ss.x, ss.y, tailX, tailY);
+                        tailGradient.addColorStop(0, `rgba(255, 255, 255, ${ss.life})`);
+                        tailGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+
+                        ctx.beginPath();
+                        ctx.moveTo(ss.x, ss.y);
+                        ctx.lineTo(tailX, tailY);
+                        ctx.strokeStyle = tailGradient;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    });
+
+                    animationFrameId = requestAnimationFrame(animate);
+                };
+                
+                const initAnimation = () => {
+                    if (animationFrameId) cancelAnimationFrame(animationFrameId);
+                    setCanvasSize();
+                    createStarfield();
+                    shootingStars = []; // Limpa estrelas cadentes antigas ao redimensionar
+                    animate();
+                };
+
+                initAnimation();
+                window.addEventListener('resize', () => {
+                    clearTimeout(window.resizeTimeout);
+                    window.resizeTimeout = setTimeout(initAnimation, 200);
+                });
+            }
+        });
+    </script>
+</body>
+</html>
